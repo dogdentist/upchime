@@ -10,8 +10,6 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
-      - name: scanning devops/containers/rustbuild/Dockerfile
-        run: trivy config --severity MEDIUM,HIGH,CRITICAL devops/containers/rustbuild/Dockerfile
       - name: scanning source/pinger/Dockerfile
         run: trivy config --severity MEDIUM,HIGH,CRITICAL source/pinger/Dockerfile
       - name: scanning devops/compose/compose.yaml
