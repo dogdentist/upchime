@@ -31,8 +31,6 @@ jobs:
         run: cargo clippy -- -Dwarnings
   build:
     runs-on: ubuntu-latest
-    container:
-      image: docker:dind
     needs: [security-check, pinger-clippy]
     steps:
       - name: checkout code
@@ -41,8 +39,8 @@ jobs:
         run: apk add make --no-cache
       - name: build
         run: |
-          addgroup -g 1000 ciuser
-          adduser -u 1000 -D -G ciuser ciuser
-          chmod 777 /var/run/docker.sock
-          chown -R 1000:1000 $GITHUB_WORKSPACE
+          sudo addgroup --gid 1000 ciuser
+          sudo adduser --uid 1000 --gid 1000 --disabled-password --gecos "" ciuser
+          sudo usermod -aG docker ciuser
+          sudo chown -R 1000:1000 $GITHUB_WORKSPACE
           su ciuser -c "make"
