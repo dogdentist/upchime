@@ -68,7 +68,7 @@ INSERT INTO target (
 """
 try:
     session.execute(cql, (
-        uuid.uuid4(),  # Let Python generate UUID
+        uuid.uuid4(),
         True,
         args.name,
         args.target,

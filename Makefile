@@ -29,7 +29,7 @@ devops/touch/.services-pinger: source/pinger/Dockerfile $(shell find source/ping
 	docker run \
 		-v $(CURDIR)/source/pinger:/home/developer/project \
 		-v $(CURDIR)/devops/temp/service-pinger-cargo:/home/developer/.cargo \
-		-it upchime-dev-rustbuild \
+		-t upchime-dev-rustbuild \
 		cargo build
 
 	docker build \
