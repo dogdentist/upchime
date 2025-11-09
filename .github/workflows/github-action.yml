@@ -37,8 +37,4 @@ jobs:
         uses: actions/checkout@v4
       - name: build
         run: |
-          sudo addgroup --gid 1000 ciuser
-          sudo adduser --uid 1000 --gid 1000 --disabled-password --gecos "" ciuser
-          sudo usermod -aG docker ciuser
-          sudo chown -R 1000:1000 $GITHUB_WORKSPACE
-          su ciuser -c "make"
+          make
