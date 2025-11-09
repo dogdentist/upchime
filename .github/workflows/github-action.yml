@@ -35,8 +35,6 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
-      - name: install make
-        run: apk add make --no-cache
       - name: build
         run: |
           sudo addgroup --gid 1000 ciuser
