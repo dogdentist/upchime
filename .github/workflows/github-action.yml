@@ -41,4 +41,8 @@ jobs:
       - name: install make
         run: apk add make --no-cache
       - name: build
-        run: make
+        run: |
+          addgroup -g 1000 ciuser
+          adduser -u 1000 -D -G ciuser ciuser
+          chown -R 1000:1000 $GITHUB_WORKSPACE
+          su ciuser -c "make"
