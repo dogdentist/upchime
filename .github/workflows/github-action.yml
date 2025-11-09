@@ -1,0 +1,25 @@
+name: Github actions
+on:
+  - push
+  - pull_request
+jobs:
+  security-check:
+    runs-on: ghcr.io/aquasecurity/trivy:latest
+    steps:
+      - run: trivy config --severity MEDIU,HIGH,CRITICAL devops/containers/rustbuild/Dockerfile
+      - run: trivy config --severity MEDIU,HIGH,CRITICAL source/pinger/Dockerfile
+      - run: trivy config --severity MEDIU,HIGH,CRITICAL config devops/compose/compose.yaml
+      - run: trivy fs --severity MEDIU,HIGH,CRITICAL source/pinger
+  pinger-clippy:
+    runs-on: rust:1.91.0
+    needs: security-check
+    steps:
+      - run: cargo clippy -- -Dwarnings
+  build:
+    runs-on: docker:dind
+    needs:
+      - security-check
+      - pinger-clippy
+    steps:
+      - run: apk add make --no-cache
+      - run: make

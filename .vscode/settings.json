@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "source/pinger/Cargo.toml"
+    ]
+}

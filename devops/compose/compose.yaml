@@ -1,0 +1,45 @@
+name: upchime
+services:
+  db:
+    image: scylladb/scylla:2025.3
+    container_name: upchime-db
+    restart: on-failure
+    environment:
+      - SCYLLA_AUTHENTICATOR=PasswordAuthenticator
+      - SCYLLA_USER_FILE=/run/secrets/DB_USERNAME
+      - SCYLLA_PASSWORD_FILE=/run/secrets/DB_PASSWORD
+    ports:
+      - 127.0.0.1:9042:9042
+    secrets:
+      - DB_USERNAME
+      - DB_PASSWORD
+  db-init:
+    image: upchime-db-prepare
+    depends_on:
+      db:
+        condition: service_started
+    environment:
+      - SCYLLA_USER_FILE=/run/secrets/DB_USERNAME
+      - SCYLLA_PASSWORD_FILE=/run/secrets/DB_PASSWORD
+    secrets:
+      - DB_USERNAME
+      - DB_PASSWORD
+  pinger:
+    image: upchime-pinger
+    container_name: upchime-pinger
+    restart: on-failure
+    environment:
+      - LOG_RETENTION=$LOG_RETENTION
+      - DB_USERNAME=/run/secrets/DB_USERNAME
+      - DB_PASSWORD=/run/secrets/DB_PASSWORD
+      - PINGER_DB_SYNC_INTERVAL=$PINGER_DB_SYNC_INTERVAL
+    secrets:
+      - DB_USERNAME
+      - DB_PASSWORD
+secrets:
+  DB_USERNAME:
+    file: secrets/db_username
+  DB_PASSWORD:
+    file: secrets/db_password
+networks:
+  upchime-dev:
