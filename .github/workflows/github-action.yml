@@ -1,25 +1,43 @@
-name: Github actions
+name: CI Pipeline
 on:
   - push
   - pull_request
 jobs:
   security-check:
-    runs-on: ghcr.io/aquasecurity/trivy:latest
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/aquasecurity/trivy:latest
     steps:
-      - run: trivy config --severity MEDIU,HIGH,CRITICAL devops/containers/rustbuild/Dockerfile
-      - run: trivy config --severity MEDIU,HIGH,CRITICAL source/pinger/Dockerfile
-      - run: trivy config --severity MEDIU,HIGH,CRITICAL config devops/compose/compose.yaml
-      - run: trivy fs --severity MEDIU,HIGH,CRITICAL source/pinger
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: scanning devops/containers/rustbuild/Dockerfile
+        run: trivy config --severity MEDIUM,HIGH,CRITICAL devops/containers/rustbuild/Dockerfile
+      - name: scanning source/pinger/Dockerfile
+        run: trivy config --severity MEDIUM,HIGH,CRITICAL source/pinger/Dockerfile
+      - name: scanning devops/compose/compose.yaml
+        run: trivy config --severity MEDIUM,HIGH,CRITICAL devops/compose/compose.yaml
+      - name: scanning source/pinger
+        run: trivy fs --severity MEDIUM,HIGH,CRITICAL source/pinger
   pinger-clippy:
-    runs-on: rust:1.91.0
+    runs-on: ubuntu-latest
+    container:
+      image: rust:1.91.0
     needs: security-check
     steps:
-      - run: cargo clippy -- -Dwarnings
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: running clippy
+        working-directory: source/pinger
+        run: cargo clippy -- -Dwarnings
   build:
-    runs-on: docker:dind
-    needs:
-      - security-check
-      - pinger-clippy
+    runs-on: ubuntu-latest
+    container:
+      image: docker:dind
+    needs: [security-check, pinger-clippy]
     steps:
-      - run: apk add make --no-cache
-      - run: make
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: install make
+        run: apk add make --no-cache
+      - name: build
+        run: make
